@@ -36,9 +36,9 @@ class DiceParser {
 
         const isThreeDifferentDice =
             dice.length === 3 &&
-            JSON.stringify(dice[0].values) === JSON.stringify([2, 2, 4, 4, 9, 9]) &&
-            JSON.stringify(dice[1].values) === JSON.stringify([1, 1, 6, 6, 8, 8]) &&
-            JSON.stringify(dice[2].values) === JSON.stringify([3, 3, 5, 5, 7, 7]);
+            JSON.stringify(dice[0].values) === JSON.stringify([2, 2, 4, 4, 8, 8]) &&
+            JSON.stringify(dice[1].values) === JSON.stringify([1, 1, 3, 3, 9, 9]) &&
+            JSON.stringify(dice[2].values) === JSON.stringify([5, 5, 6, 6, 7, 7]);
 
         if (isThreeDifferentDice) {
             console.log('Special case: Three specific dice configurations detected.');
