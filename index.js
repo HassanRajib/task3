@@ -1,7 +1,5 @@
-
 const DiceParser = require('./DiceParser');
 const FairPlay = require('./FairPlay');
-const GameTable = require('./GameTable');
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -18,60 +16,62 @@ async function main() {
         const args = process.argv.slice(2);
         const dice = DiceParser.parse(args);
 
-        DiceParser.validateSpecialCases(dice);
-
         console.log("Welcome to the Dice Game!");
 
         const fairPlay = new FairPlay();
 
-        // Determine who goes first
-        console.log("Determining who goes first...");
-        const { computerNumber, hmac } = fairPlay.generateFairNumber(2);
-        console.log(`HMAC for fairness: ${hmac}`);
-        const userChoice = parseInt(await promptUser("Choose a number (0 or 1): "), 10);
-        const result = (userChoice + computerNumber) % 2;
-
-        console.log(`Computer's number: ${computerNumber}`);
-        console.log(`Key: ${fairPlay.secretKey}`);
-        console.log(
-            `Fairness verified: ${fairPlay.verifyFairness(computerNumber, hmac)}`
-        );
-
-        console.log(result === 0 ? "You go first!" : "Computer goes first!");
-
         // Main game loop
         while (true) {
             console.log("\nMenu:");
-            console.log("1. Roll a die");
-            console.log("2. View probabilities");
+            console.log("1. Play a round");
+            console.log("2. View help (probability table)");
             console.log("3. Exit");
 
             const choice = await promptUser("Choose an option: ");
+
             if (choice === "1") {
+                // Computer selects a die if it goes first
+                const computerDieIndex = Math.floor(Math.random() * dice.length);
+                console.log(`Computer selects Die ${computerDieIndex + 1}.`);
+
+                // User selects a die
                 console.log("Available dice:");
                 dice.forEach((_, i) => console.log(`${i + 1}: Die ${i + 1}`));
+                const userDieIndex = parseInt(await promptUser("Choose a die: "), 10) - 1;
 
-                const dieChoice = parseInt(await promptUser("Choose a die: "), 10) - 1;
-                const userRoll = dice[dieChoice].roll();
-                console.log(`You rolled: ${userRoll}`);
+                // Computer generates a fair number and HMAC
+                const { computerNumber, hmac } = fairPlay.generateFairNumber(6);
+                console.log(`HMAC for computer's number: ${hmac}`);
 
-                const computerRoll = dice[Math.floor(Math.random() * dice.length)].roll();
-                console.log(`Computer rolled: ${computerRoll}`);
+                // User selects a number
+                const userNumber = parseInt(await promptUser("Choose a number (0-5): "), 10);
 
-                if (userRoll > computerRoll) {
+                // Reveal computer's secret key and verify fairness
+                const secretKey = fairPlay.revealSecretKey();
+                console.log(`Computer's number: ${computerNumber}`);
+                console.log(`Secret key: ${secretKey}`);
+                console.log(`Fairness verified: ${fairPlay.verifyFairness(computerNumber, hmac)}`);
+
+                // Calculate result
+                const finalComputerRoll = dice[computerDieIndex].roll();
+                const finalUserRoll = dice[userDieIndex].roll();
+                console.log(`Computer rolled: ${finalComputerRoll}`);
+                console.log(`You rolled: ${finalUserRoll}`);
+
+                if (finalUserRoll > finalComputerRoll) {
                     console.log("You win this round!");
-                } else if (userRoll < computerRoll) {
+                } else if (finalUserRoll < finalComputerRoll) {
                     console.log("Computer wins this round!");
                 } else {
                     console.log("It's a tie!");
                 }
             } else if (choice === "2") {
-                console.log(GameTable.generate(dice));
+                console.log("Help: Probability table feature is coming soon.");
             } else if (choice === "3") {
-                console.log("Exiting the game.");
+                console.log("Exiting the game. Goodbye!");
                 break;
             } else {
-                console.log("Invalid option. Try again.");
+                console.log("Invalid option. Please try again.");
             }
         }
 
