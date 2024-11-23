@@ -1,6 +1,7 @@
 const DiceParser = require('./DiceParser');
 const FairPlay = require('./FairPlay');
 const readline = require('readline');
+const ProbabilityCalculator = require('./ProbabilityCalculator');
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -66,7 +67,8 @@ async function main() {
                     console.log("It's a tie!");
                 }
             } else if (choice === "2") {
-                console.log("Help: Probability table feature is coming soon.");
+                const probabilities = ProbabilityCalculator.calculateProbabilities(dice);
+                ProbabilityCalculator.displayProbabilityTable(probabilities, dice);
             } else if (choice === "3") {
                 console.log("Exiting the game. Goodbye!");
                 break;

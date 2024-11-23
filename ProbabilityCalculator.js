@@ -1,28 +1,48 @@
-
 class ProbabilityCalculator {
-    static calculateWinningProbabilities(dice) {
+    static calculateProbabilities(dice) {
         const probabilities = [];
+
         for (let i = 0; i < dice.length; i++) {
-            const row = [];
+            probabilities[i] = [];
             for (let j = 0; j < dice.length; j++) {
-                row.push(this.getWinProbability(dice[i], dice[j]));
+                if (i === j) {
+                    probabilities[i][j] = 'N/A'; // Same dice comparison
+                } else {
+                    probabilities[i][j] = ProbabilityCalculator.getWinProbability(dice[i], dice[j]);
+                }
             }
-            probabilities.push(row);
         }
+
         return probabilities;
     }
 
-    static getWinProbability(dieA, dieB) {
+    static getWinProbability(die1, die2) {
+        const sides1 = die1.values;
+        const sides2 = die2.values;
+
         let wins = 0;
-        let total = dieA.values.length * dieB.values.length;
+        let total = 0;
 
-        dieA.values.forEach((a) => {
-            dieB.values.forEach((b) => {
-                if (a > b) wins++;
-            });
-        });
+        for (let roll1 of sides1) {
+            for (let roll2 of sides2) {
+                total++;
+                if (roll1 > roll2) {
+                    wins++;
+                }
+            }
+        }
 
-        return (wins / total).toFixed(2);
+        return (wins / total).toFixed(2); // Probability of die1 winning
+    }
+
+    static displayProbabilityTable(probabilities, dice) {
+        console.log("\nProbability Table:");
+        console.log("Dice\\Dice", ...dice.map((_, i) => `D${i + 1}`));
+
+        for (let i = 0; i < probabilities.length; i++) {
+            const row = probabilities[i].map((prob) => (prob === 'N/A' ? prob : `${prob * 100}%`));
+            console.log(`D${i + 1}`, ...row);
+        }
     }
 }
 
